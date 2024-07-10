@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дані клієнтів / Client Data</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 5px;
+        }
+        th, td {
+            text-align: left;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<button id="languageButton" onclick="toggleLanguage()">Switch to English</button>
+
+<h2 id="formTitle">Внесення даних клієнтів</h2>
+<!-- Form for client data entry -->
+<form id="clientForm">
+    <label for="firstName" id="labelFirstName">Ім'я:</label><br>
+    <input type="text" id="firstName" name="firstName" required><br>
+
+    <label for="lastName" id="labelLastName">Фамілія:</label><br>
+    <input type="text" id="lastName" name="lastName" required><br>
+
+    <h3 id="addressTitle">Адреса:</h3>
+    <label for="city" id="labelCity">Місто:</label><br>
+    <input type="text" id="city" name="city" required><br>
+
+    <label for="street" id="labelStreet">Вулиця:</label><br>
+    <input type="text" id="street" name="street" required><br>
+
+    <label for="house" id="labelHouse">Будинок:</label><br>
+    <input type="text" id="house" name="house" required><br>
+
+    <label for="apartment" id="labelApartment">Номер квартири:</label><br>
+    <input type="text" id="apartment" name="apartment"><br>
+
+    <h3 id="contactsTitle">Контакти:</h3>
+    <label for="phone" id="labelPhone">Номер телефону:</label><br>
+    <input type="tel" id="phone" name="phone" required><br>
+
+    <label for="email" id="labelEmail">Емейл:</label><br>
+    <input type="email" id="email" name="email" required><br>
+
+    <label for="telegram" id="labelTelegram">Ім'я користувача в Телеграм:</label><br>
+    <input type="text" id="telegram" name="telegram"><br><br>
+
+    <input type="submit" value="Додати клієнта" id="submitButton">
+</form>
+
+<h2 id="importTitle">Імпортувати дані клієнтів з JSON</h2>
+<input type="file" id="importJson" accept=".json"><br><br>
+
+<h2 id="tableTitle">Таблиця даних клієнтів</h2>
+
+<table id="clientsTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th id="headerFirstName">Ім'я</th>
+            <th id="headerLastName">Фамілія</th>
+            <th id="headerAddress">Адреса</th>
+            <th id="headerContacts">Контакти</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<input type="button" id="exportJson" value="Експортувати дані клієнтів у JSON">
+
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    loadClients();
+    initializeIdCounter();
+});
+
+document.getElementById('clientForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let client = {
+        id: generateUniqueId(),
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        address: {
+            city: document.getElementById('city').value,
+            street: document.getElementById('street').value,
+            house: document.getElementById('house').value,
+            apartment: document.getElementById('apartment').value
+        },
+        contacts: {
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            telegram: document.getElementById('telegram').value
+        }
+    };
+
+    saveClient(client);
+    addClientToTable(client);
+    document.getElementById('clientForm').reset();
+});
+
+document.getElementById('importJson').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const content = e.target.result;
+            try {
+                const clients = JSON.parse(content);
+                if (Array.isArray(clients)) {
+                    clients.forEach(client => {
+                        saveClient(client);
+                        addClientToTable(client);
+                    });
+                } else {
+                    alert("Неправильний формат даних JSON");
+                }
+            } catch (error) {
+                alert("Помилка при зчитуванні JSON: " + error.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+});
+
+document.getElementById('exportJson').addEventListener('click', function() {
+    const clients = JSON.parse(localStorage.getItem('clients'));
+    const dataStr = JSON.stringify(clients, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'clients.json';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
+
+function saveClient(client) {
+    let clients = JSON.parse(localStorage.getItem('clients')) || [];
+    clients.push(client);
+    localStorage.setItem('clients', JSON.stringify(clients));
+}
+
+function loadClients() {
+    let clients = JSON.parse(localStorage.getItem('clients')) || [];
+    const tableBody = document.getElementById('clientsTable').getElementsByTagName('tbody')[0];
+    tableBody.innerHTML = ''; // Clear the table before loading
+    clients.forEach(client => addClientToTable(client));
+}
+
+function addClientToTable(client) {
+    let table = document.getElementById('clientsTable').getElementsByTagName('tbody')[0];
+    let newRow = table.insertRow();
+
+    let cell0 = newRow.insertCell(0);
+    cell0.textContent = client.id;
+
+    let cell1 = newRow.insertCell(1);
+    cell1.textContent = client.firstName;
+
+    let cell2 = newRow.insertCell(2);
+    cell2.textContent = client.lastName;
+
+    let cell3 = newRow.insertCell(3);
+    let addressContent = `Місто: ${client.address.city}, Вулиця: ${client.address.street}, Будинок: ${client.address.house}, Квартира: ${client.address.apartment}`;
+    cell3.textContent = addressContent;
+
+    let cell4 = newRow.insertCell(4);
+    let contactsContent = `Телефон: ${client.contacts.phone}, Емейл: ${client.contacts.email}, Телеграм: ${client.contacts.telegram}`;
+    cell4.textContent = contactsContent;
+}
+
+function initializeIdCounter() {
+    if (!localStorage.getItem('clientIdCounter')) {
+        localStorage.setItem('clientIdCounter', '1');
+    }
+}
+
+function generateUniqueId() {
+    let idCounter = parseInt(localStorage.getItem('clientIdCounter'), 10);
+    let newId = idCounter.toString().padStart(4, '0');
+    localStorage.setItem('clientIdCounter', (idCounter + 1).toString());
+    return newId;
+}
+
+// Language toggle functionality
+function toggleLanguage() {
+    const elements = {
+        languageButton: document.getElementById('languageButton'),
+        formTitle: document.getElementById('formTitle'),
+        labelFirstName: document.getElementById('labelFirstName'),
+        labelLastName: document.getElementById('labelLastName'),
+        addressTitle: document.getElementById('addressTitle'),
+        labelCity: document.getElementById('labelCity'),
+        labelStreet: document.getElementById('labelStreet'),
+        labelHouse: document.getElementById('labelHouse'),
+        labelApartment: document.getElementById('labelApartment'),
+        contactsTitle: document.getElementById('contactsTitle'),
+        labelPhone: document.getElementById('labelPhone'),
+        labelEmail: document.getElementById('labelEmail'),
+        labelTelegram: document.getElementById('labelTelegram'),
+        submitButton: document.getElementById('submitButton'),
+        importTitle: document.getElementById('importTitle'),
+        tableTitle: document.getElementById('tableTitle'),
+        headerFirstName: document.getElementById('headerFirstName'),
+        headerLastName: document.getElementById('headerLastName'),
+        headerAddress: document.getElementById('headerAddress'),
+        headerContacts: document.getElementById('headerContacts')
+    };
+
+    const isEnglish = elements.languageButton.textContent.includes("English");
+
+    elements.languageButton.textContent = isEnglish ? "Переключити на українську" : "Switch to English";
+    elements.formTitle.textContent = isEnglish ? "Client Data Entry" : "Внесення даних клієнтів";
+    elements.labelFirstName.textContent = isEnglish ? "First Name:" : "Ім'я:";
+    elements.labelLastName.textContent = isEnglish ? "Last Name:" : "Фамілія:";
+    elements.addressTitle.textContent = isEnglish ? "Address:" : "Адреса:";
+    elements.labelCity.textContent = isEnglish ? "City:" : "Місто:";
+    elements.labelStreet.textContent = isEnglish ? "Street:" : "Вулиця:";
+    elements.labelHouse.textContent = isEnglish ? "House:" : "Будинок:";
+    elements.labelApartment.textContent = isEnglish ? "Apartment Number:" : "Номер квартири:";
+    elements.contactsTitle.textContent = isEnglish ? "Contacts:" : "Контакти:";
+    elements.labelPhone.textContent = isEnglish ? "Phone Number:" : "Номер телефону:";
+    elements.labelEmail.textContent = isEnglish ? "Email:" : "Емейл:";
+    elements.labelTelegram.textContent = isEnglish ? "Telegram Username:" : "Ім'я користувача в Телеграм:";
+    elements.submitButton.value = isEnglish ? "Add Client" : "Додати клієнта";
+    elements.importTitle.textContent = isEnglish ? "Import Client Data from JSON" : "Імпортувати дані клієнтів з JSON";
+    elements.tableTitle.textContent = isEnglish ? "Client Data Table" : "Таблиця даних клієнтів";
+    elements.headerFirstName.textContent = isEnglish ? "First Name" : "Ім'я";
+    elements.headerLastName.textContent = isEnglish ? "Last Name" : "Фамілія";
+    elements.headerAddress.textContent = isEnglish ? "Address" : "Адреса";
+    elements.headerContacts.textContent = isEnglish ? "Contacts" : "Контакти";
+}
+</script>
+
+</body>
+</html>
