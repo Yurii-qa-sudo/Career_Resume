@@ -1,0 +1,70 @@
+{
+  "data": {
+    "client": [
+      {
+        "id": "0002",
+        "firstName": "Аскольд",
+        "lastName": "Забіл",
+        "address": {
+          "apartment": "40",
+          "city": "Харків",
+          "house": "55",
+          "street": "площа Нижанківського"
+        },
+        "contacts": {
+          "email": "your.email+fakedata92938@gmail.com",
+          "phone": "719-541-4778",
+          "telegram": "@Michel89"
+        }
+      },
+      {
+        "id": "0003",
+        "firstName": "Поляна",
+        "lastName": "Сушко",
+        "address": {
+          "apartment": "3",
+          "city": "Дніпропетровськ",
+          "house": "8",
+          "street": "Вузька"
+        },
+        "contacts": {
+          "email": "your.email+fakedata68484@gmail.com",
+          "phone": "658-671-1941",
+          "telegram": "@Jonas95"
+        }
+      },
+      {
+        "id": "0004",
+        "firstName": "Людомила",
+        "lastName": "Горбач",
+        "address": {
+          "apartment": "85",
+          "city": "Павлоград",
+          "house": "54",
+          "street": "Стрийська"
+        },
+        "contacts": {
+          "email": "your.email+fakedata25517@gmail.com",
+          "phone": "016-441-9981",
+          "telegram": "@Laron_Fritsch2"
+        }
+      },
+      {
+        "id": "0005",
+        "firstName": "Жанна",
+        "lastName": "Кандиба",
+        "address": {
+          "apartment": "66",
+          "city": "Київ",
+          "house": "87",
+          "street": "Староміська"
+        },
+        "contacts": {
+          "email": "your.email+fakedata85270@gmail.com",
+          "phone": "942-621-6670",
+          "telegram": "@Elinor9"
+        }
+      }
+    ]
+  }
+}
